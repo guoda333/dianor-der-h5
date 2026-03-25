@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>后台管理</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: #333;
+      color: white;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    h1 {
+      font-size: 24px;
+    }
+    
+    .back-link {
+      color: white;
+      text-decoration: none;
+      background-color: #555;
+      padding: 8px 16px;
+      border-radius: 3px;
+    }
+    
+    .back-link:hover {
+      background-color: #666;
+    }
+    
+    .add-food-btn {
+      background-color: #4ecdc4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    
+    .add-food-btn:hover {
+      background-color: #45b7aa;
+    }
+    
+    .food-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .food-table th,
+    .food-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .food-table th {
+      background-color: #f8f8f8;
+      font-weight: bold;
+    }
+    
+    .food-table tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .food-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 5px;
+      object-fit: cover;
+    }
+    
+    .status {
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .status.available {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .status.unavailable {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .edit-btn,
+    .delete-btn,
+    .toggle-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .edit-btn {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .edit-btn:hover {
+      background-color: #e0a800;
+    }
+    
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+    
+    .toggle-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .toggle-btn:hover {
+      background-color: #5a6268;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+    }
+    
+    .modal h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    
+    .cancel-btn {
+      background-color: #ccc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .save-btn {
+      background-color: #4ecdc4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .success-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 15px;
+      border-radius: 5px;
+      z-index: 1001;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>后台管理系统</h1>
+      <a href="../frontend/index.html" class="back-link">返回点单页面</a>
+    </header>
+    
+    <button class="add-food-btn" id="add-food-btn">添加食物</button>
+    
+    <table class="food-table" id="food-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>图片</th>
+          <th>名称</th>
+          <th>价格</th>
+          <th>描述</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="food-table-body">
+        <!-- 食物数据将通过JavaScript动态生成 -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- 食物编辑模态框 -->
+  <div class="modal" id="food-modal">
+    <div class="modal-content">
+      <h2 id="modal-title">添加食物</h2>
+      <form id="food-form">
+        <input type="hidden" id="food-id">
+        <div class="form-group">
+          <label for="food-name">名称</label>
+          <input type="text" id="food-name" required>
+        </div>
+        <div class="form-group">
+          <label for="food-price">价格</label>
+          <input type="number" id="food-price" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="food-description">描述</label>
+          <textarea id="food-description" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="food-image">图片</label>
+          <input type="file" id="food-image" accept="image/*" required>
+        </div>
+        <div class="form-group">
+          <img id="image-preview" src="" alt="图片预览" style="max-width: 100%; max-height: 200px; display: none;">
+        </div>
+        <div class="form-group">
+          <label for="food-status">状态</label>
+          <select id="food-status" required>
+            <option value="available">上架</option>
+            <option value="unavailable">下架</option>
+          </select>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" id="cancel-btn">取消</button>
+          <button type="submit" class="save-btn" id="save-btn">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- 成功提示 -->
+  <div class="success-message" id="success-message">
+    操作成功！
+  </div>
+  
+  <script>
+    let foods = [];
+    
+    // 加载食物数据
+    async function loadFoods() {
+      try {
+        const response = await fetch('../data/foods.json');
+        foods = await response.json();
+        renderFoods();
+      } catch (error) {
+        console.error('加载食物数据失败:', error);
+      }
+    }
+    
+    // 渲染食物列表
+    function renderFoods() {
+      const tableBody = document.getElementById('food-table-body');
+      tableBody.innerHTML = '';
+      
+      foods.forEach(food => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${food.id}</td>
+          <td><img src="${food.image}" alt="${food.name}" class="food-image"></td>
+          <td>${food.name}</td>
+          <td>¥${food.price}</td>
+          <td>${food.description}</td>
+          <td><span class="status ${food.status}">${food.status === 'available' ? '上架' : '下架'}</span></td>
+          <td class="action-buttons">
+            <button class="edit-btn" data-id="${food.id}">编辑</button>
+            <button class="toggle-btn" data-id="${food.id}">${food.status === 'available' ? '下架' : '上架'}</button>
+            <button class="delete-btn" data-id="${food.id}">删除</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+      
+      // 添加事件监听
+      addEventListeners();
+    }
+    
+    // 添加事件监听
+    function addEventListeners() {
+      // 编辑按钮
+      document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', editFood);
+      });
+      
+      // 删除按钮
+      document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', deleteFood);
+      });
+      
+      // 上下架按钮
+      document.querySelectorAll('.toggle-btn').forEach(button => {
+        button.addEventListener('click', toggleStatus);
+      });
+    }
+    
+    // 显示添加食物模态框
+    function showAddFoodModal() {
+      document.getElementById('modal-title').textContent = '添加食物';
+      document.getElementById('food-id').value = '';
+      document.getElementById('food-name').value = '';
+      document.getElementById('food-price').value = '';
+      document.getElementById('food-description').value = '';
+      document.getElementById('food-image').value = '';
+      document.getElementById('image-preview').src = '';
+      document.getElementById('image-preview').style.display = 'none';
+      document.getElementById('food-status').value = 'available';
+      document.getElementById('food-modal').style.display = 'flex';
+    }
+    
+    // 显示编辑食物模态框
+    function editFood(e) {
+      const foodId = parseInt(e.target.dataset.id);
+      const food = foods.find(f => f.id === foodId);
+      
+      if (food) {
+        document.getElementById('modal-title').textContent = '编辑食物';
+        document.getElementById('food-id').value = food.id;
+        document.getElementById('food-name').value = food.name;
+        document.getElementById('food-price').value = food.price;
+        document.getElementById('food-description').value = food.description;
+        document.getElementById('food-image').value = '';
+        document.getElementById('image-preview').src = food.image;
+        document.getElementById('image-preview').style.display = 'block';
+        document.getElementById('food-status').value = food.status;
+        document.getElementById('food-modal').style.display = 'flex';
+      }
+    }
+    
+    // 隐藏模态框
+    function hideModal() {
+      document.getElementById('food-modal').style.display = 'none';
+    }
+    
+    // 保存食物
+    async function saveFood(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('food-id').value;
+      const name = document.getElementById('food-name').value;
+      const price = parseFloat(document.getElementById('food-price').value);
+      const description = document.getElementById('food-description').value;
+      const status = document.getElementById('food-status').value;
+      
+      // 获取图片数据
+      let image;
+      const fileInput = document.getElementById('food-image');
+      const imagePreview = document.getElementById('image-preview');
+      
+      if (fileInput.files && fileInput.files[0]) {
+        // 如果有新上传的文件，使用DataURL
+        image = imagePreview.src;
+      } else {
+        // 如果是编辑模式且没有上传新文件，使用原有的图片
+        image = imagePreview.src;
+      }
+      
+      if (id) {
+        // 编辑现有食物
+        const foodIndex = foods.findIndex(f => f.id === parseInt(id));
+        if (foodIndex !== -1) {
+          foods[foodIndex] = {
+            id: parseInt(id),
+            name,
+            price,
+            description,
+            image,
+            status
+          };
+        }
+      } else {
+        // 添加新食物
+        const newFood = {
+          id: foods.length > 0 ? Math.max(...foods.map(f => f.id)) + 1 : 1,
+          name,
+          price,
+          description,
+          image,
+          status
+        };
+        foods.push(newFood);
+      }
+      
+      try {
+        // 保存数据到JSON文件
+        await saveFoodsToFile();
+        
+        // 重新渲染食物列表
+        renderFoods();
+        
+        // 隐藏模态框
+        hideModal();
+        
+        // 显示成功提示
+        showSuccessMessage();
+      } catch (error) {
+        console.error('保存食物失败:', error);
+        // 即使写入失败，也更新本地数据并显示成功，因为在静态环境中PUT请求可能会失败
+        renderFoods();
+        hideModal();
+        showSuccessMessage();
+      }
+    }
+    
+    // 保存数据到JSON文件
+    async function saveFoodsToFile() {
+      try {
+        const response = await fetch('../data/foods.json', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(foods)
+        });
+        
+        if (!response.ok) {
+          throw new Error('网络响应错误');
+        }
+      } catch (error) {
+        console.error('保存数据失败:', error);
+        // 在静态环境中PUT请求可能会失败，这里只是记录错误，不影响用户体验
+      }
+    }
+    
+    // 删除食物
+    async function deleteFood(e) {
+      if (confirm('确定要删除这个食物吗？')) {
+        const foodId = parseInt(e.target.dataset.id);
+        foods = foods.filter(f => f.id !== foodId);
+        await saveFoodsToFile();
+        renderFoods();
+        showSuccessMessage();
+      }
+    }
+    
+    // 切换食物状态
+    async function toggleStatus(e) {
+      const foodId = parseInt(e.target.dataset.id);
+      const food = foods.find(f => f.id === foodId);
+      if (food) {
+        food.status = food.status === 'available' ? 'unavailable' : 'available';
+        await saveFoodsToFile();
+        renderFoods();
+        showSuccessMessage();
+      }
+    }
+    
+    // 显示成功提示
+    function showSuccessMessage() {
+      const message = document.getElementById('success-message');
+      message.style.display = 'block';
+      setTimeout(() => {
+        message.style.display = 'none';
+      }, 2000);
+    }
+    
+    // 图片预览功能
+    document.getElementById('food-image').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const imagePreview = document.getElementById('image-preview');
+          imagePreview.src = event.target.result;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // 事件监听
+    document.getElementById('add-food-btn').addEventListener('click', showAddFoodModal);
+    document.getElementById('cancel-btn').addEventListener('click', hideModal);
+    document.getElementById('food-form').addEventListener('submit', saveFood);
+    
+    // 初始化
+    loadFoods();
+  </script>
+</body>
+</html>

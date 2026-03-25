@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "汉堡",
+    "price": 15,
+    "description": "经典牛肉汉堡",
+    "image": "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=classic%20beef%20hamburger%20with%20lettuce%20and%20tomato&image_size=square_hd",
+    "status": "available"
+  },
+  {
+    "id": 2,
+    "name": "薯条",
+    "price": 8,
+    "description": "香脆薯条",
+    "image": "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=crispy%20french%20fries&image_size=square_hd",
+    "status": "available"
+  },
+  {
+    "id": 3,
+    "name": "可乐",
+    "price": 5,
+    "description": "冰镇可乐",
+    "image": "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=chilled%20coke%20in%20a%20cup&image_size=square_hd",
+    "status": "available"
+  }
+]
